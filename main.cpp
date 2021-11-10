@@ -31,6 +31,7 @@ GLuint mvLoc, projLoc;
 int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
+glm::mat4 tMat, rMat;
 
 
 float x = 0.f;
@@ -106,8 +107,14 @@ void display(GLFWwindow* window, double currentTime)
 	aspect = (float)width / (float)height;
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);//1.0472 radians = 60 degrees
 
+	tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * currentTime) * 2.0f, cos(0.52f * currentTime) * 2.f, sin(0.7f * currentTime) * 2.f));
+	rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
+	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
+	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1));
+
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-	mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	//mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	mMat = tMat * rMat;
 	mvMat = vMat*mMat;
 
 	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
