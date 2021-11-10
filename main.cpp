@@ -106,27 +106,32 @@ void display(GLFWwindow* window, double currentTime)
 	glfwGetFramebufferSize(window, &width, &height);
 	aspect = (float)width / (float)height;
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);//1.0472 radians = 60 degrees
-
-	tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * currentTime) * 2.0f, cos(0.52f * currentTime) * 2.f, sin(0.7f * currentTime) * 2.f));
-	rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
-	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
-	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1));
-
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	//mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-	mMat = tMat * rMat;
-	mvMat = vMat*mMat;
 
-	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+	float tf;
+	for (int i = 0; i < 24; i++)
+	{
+		tf = currentTime + i;
+		tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * tf) * 2.0f, cos(0.52f * tf) * 2.f, sin(0.7f * tf) * 2.f));
+		rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
+		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
+		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1));
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
+		mMat = tMat * rMat;
+		mvMat = vMat * mMat;
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+		glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 }
 
 int main()
