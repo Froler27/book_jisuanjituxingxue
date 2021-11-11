@@ -90,6 +90,9 @@ void init(GLFWwindow* window)
 	cubeLocY = -2;
 	cubeLocZ = 0;
 	setupVertices();
+	glfwGetFramebufferSize(window, &width, &height);
+	aspect = (float)width / (float)height;
+	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);//1.0472 radians = 60 degrees
 }
 
 void display(GLFWwindow* window, double currentTime)
@@ -103,10 +106,6 @@ void display(GLFWwindow* window, double currentTime)
 	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
-	aspect = (float)width / (float)height;
-	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);//1.0472 radians = 60 degrees
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	//mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
 
@@ -135,6 +134,13 @@ void display(GLFWwindow* window, double currentTime)
 	}
 }
 
+void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
+{
+	aspect = (float)newWidth / (float)newHeight;
+	glViewport(0, 0, newWidth, newHeight);
+	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);
+}
+
 int main()
 {
 	glewExperimental = GL_TRUE;// 为了解决电脑适配问题，可以删除如果不会出错
@@ -152,6 +158,7 @@ int main()
 	//if (gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { exit(EXIT_FAILURE); } // 初始化glad，使得可以调用 opengl 函数
 	
 	glfwSwapInterval(1);// 设置界面刷新的最小间隔
+	glfwSetWindowSizeCallback(window, windowReshapeCallback);// 添加窗口大小改变回调函数
 
 	init(window);
 
