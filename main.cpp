@@ -85,7 +85,7 @@ void init(GLFWwindow* window)
 		"Shaders/fragShader.glsl").getId();
 	cameraX = 0;
 	cameraY = 0;
-	cameraZ = 8;
+	cameraZ = 30;
 	cubeLocX = 0;
 	cubeLocY = -2;
 	cubeLocZ = 0;
@@ -104,6 +104,7 @@ void display(GLFWwindow* window, double currentTime)
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
 	glfwGetFramebufferSize(window, &width, &height);
+	glViewport(0, 0, width, height);
 	aspect = (float)width / (float)height;
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.f);//1.0472 radians = 60 degrees
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
@@ -113,7 +114,7 @@ void display(GLFWwindow* window, double currentTime)
 	for (int i = 0; i < 24; i++)
 	{
 		tf = currentTime + i;
-		tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * tf) * 2.0f, cos(0.52f * tf) * 2.f, sin(0.7f * tf) * 2.f));
+		tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * tf) * 8.0f, cos(0.52f * tf) * 8.f, sin(0.7f * tf) * 8.f));
 		rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
 		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
 		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1));
