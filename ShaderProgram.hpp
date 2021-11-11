@@ -8,6 +8,7 @@
 class ShaderProgram
 {
 public:
+	/** @brief: 创建着色器程序 */
 	static ShaderProgram CreateShaderProgram(const char* vertSource, const char* fragSource);
 
 public:
@@ -27,6 +28,6 @@ private:
 
 private:
 	GLuint _id{ 0 };
-	bool _showLog{ true };
+	bool _showLog{ true };// 是否打印着色器编译的信息
 };
 

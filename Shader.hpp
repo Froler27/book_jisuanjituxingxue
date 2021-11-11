@@ -25,25 +25,29 @@ private:
 	virtual void createShader() = 0;
 
 public:
+	/** @brief: 加载着色器代码 */
 	void loadSource(const char* source);
 	void loadSource(const std::string& source);
 	void loadSource(GLsizei numSource, const GLchar* const* sources, const GLint* lenPerSource = nullptr);
+	/** @brief: 从文件中加载着色器代码 */
 	void loadSourceFromFile(const char* fileName);
+	/** @brief: 编译着色器 */
 	virtual void compileShader();
 
+	/** @brief: 获取着色器ID */
 	GLuint getId() { return _id; }
+	/** @brief: 设置是否打印编译信息 */
 	void noLog(bool bShow = false) { _showLog = bShow; }
 
 protected:
-	std::string getTypeStr();
-	void printShaderLog();
+	std::string getTypeStr();// 获取着色器类型的字符串
+	void printShaderLog();// 打印着色器编译信息
 
 
 protected:
-	char* _source{ nullptr };
 	GLuint _id{ 0 };
 	EType _type{ EType::UNDEFINED };
-	bool _showLog{ true };
+	bool _showLog{ true }; // 是否打印着色器编译的信息
 };
 
 
