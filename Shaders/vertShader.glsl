@@ -17,9 +17,9 @@ mat4 buildTranslate(float x, float y, float z);
 void main(void)
 { 
 	float i = gl_InstanceID + tf;
-	float a = sin(0.35*i)*8.0;
-	float b = sin(0.52*i)*8.0;
-	float c = sin(0.7*i)*8.0;
+	float a = sin(203*i/8000.)*403.0;
+	float b = sin(301*i/4001.)*401.0;
+	float c = sin(400*i/6003.)*405.0;
 
 	float k = 1.75f;
 	mat4 localRotX = buildRotateX(k*i);

@@ -85,7 +85,7 @@ void init(GLFWwindow* window)
 		"Shaders/fragShader.glsl").getId();
 	cameraX = 0;
 	cameraY = 0;
-	cameraZ = 30;
+	cameraZ = 420;
 	cubeLocX = 0;
 	cubeLocY = -2;
 	cubeLocZ = 0;
@@ -121,7 +121,7 @@ void display(GLFWwindow* window, double currentTime)
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
 	//glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
