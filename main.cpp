@@ -22,14 +22,15 @@ const GLuint numVBOs = 2;
 
 float cameraX, cameraY, cameraZ;
 float cubeLocX, cubeLocY, cubeLocZ;
+glm::vec3 pyrLoc;
 
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
-GLuint mLoc, projLoc, vLoc, tfLoc;
+GLuint mvLoc, projLoc;
 int width, height;
-float aspect, timeFactor;
+float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
 glm::mat4 tMat, rMat;
 
@@ -37,9 +38,8 @@ glm::mat4 tMat, rMat;
 float x = 0.f;
 float inc = 0.01f;
 
-void readVertexes(vector<float>& verts)
+void readVertexes(vector<float>& verts, const char* filePath)
 {
-	const char* filePath = "Models/cubo.txt";
 	try
 	{
 		verts.clear();
@@ -63,11 +63,18 @@ void readVertexes(vector<float>& verts)
 
 void setupVertices()
 {
-	vector<float> verts;
-	readVertexes(verts);
-	float vv[108];
+	vector<float> cubeVerts;
+	readVertexes(cubeVerts, "Models/cubo.txt");
+	float cubeVertsC[108];
 	for (int i = 0; i < 108; i++) {
-		vv[i] = verts[i];
+		cubeVertsC[i] = cubeVerts[i];
+	}
+
+	vector<float> pyramidVerts;
+	readVertexes(pyramidVerts, "Models/pyramid.txt");
+	float pyramidVertsC[54];
+	for (int i = 0; i < 54; i++) {
+		pyramidVertsC[i] = pyramidVerts[i];
 	}
 	
 	glGenVertexArrays(1, vao);
@@ -75,7 +82,10 @@ void setupVertices()
 	glGenBuffers(numVBOs, vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(float), vv, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cubeVerts.size() * sizeof(float), cubeVertsC, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, pyramidVerts.size() * sizeof(float), pyramidVertsC, GL_STATIC_DRAW);
 }
 
 void init(GLFWwindow* window) 
@@ -85,10 +95,13 @@ void init(GLFWwindow* window)
 		"Shaders/fragShader.glsl").getId();
 	cameraX = 0;
 	cameraY = 0;
-	cameraZ = 420;
+	cameraZ = 10;
 	cubeLocX = 0;
 	cubeLocY = -2;
 	cubeLocZ = 0;
+	pyrLoc.x = 5;
+	pyrLoc.y = 1;
+	pyrLoc.z = -2;
 	setupVertices();
 	glfwGetFramebufferSize(window, &width, &height);
 	aspect = (float)width / (float)height;
@@ -103,16 +116,16 @@ void display(GLFWwindow* window, double currentTime)
 	//glPointSize(30.f);// 设置点大小为30
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);// 设置线框模式，GL_FILL 为填充模式（默认）
 
-	vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
-	mLoc = glGetUniformLocation(renderingProgram, "m_matrix");
+	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-	tfLoc = glGetUniformLocation(renderingProgram, "tf");
 
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+
+	// 绘制立方体
 	mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
-	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(mMat));
-	glUniform1f(tfLoc, (float)currentTime);
+	mvMat = vMat * mMat;
+
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -121,8 +134,23 @@ void display(GLFWwindow* window, double currentTime)
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	// 绘制金字塔
+	mMat = glm::translate(glm::mat4(1.f), pyrLoc);
+	mvMat = vMat * mMat;
+
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glDrawArrays(GL_TRIANGLES, 0, 18);
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
