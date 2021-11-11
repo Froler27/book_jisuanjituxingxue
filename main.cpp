@@ -27,9 +27,9 @@ GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
 
-GLuint mvLoc, projLoc;
+GLuint mLoc, projLoc, vLoc, tfLoc;
 int width, height;
-float aspect;
+float aspect, timeFactor;
 glm::mat4 pMat, vMat, mMat, mvMat;
 glm::mat4 tMat, rMat;
 
@@ -103,36 +103,26 @@ void display(GLFWwindow* window, double currentTime)
 	//glPointSize(30.f);// 设置点大小为30
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);// 设置线框模式，GL_FILL 为填充模式（默认）
 
-	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+	vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
+	mLoc = glGetUniformLocation(renderingProgram, "m_matrix");
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+	tfLoc = glGetUniformLocation(renderingProgram, "tf");
 
 	vMat = glm::translate(glm::mat4(1.f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-	//mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
+	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(mMat));
+	glUniform1f(tfLoc, (float)currentTime);
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
-	float tf;
-	// 用循环绘制24个立方体
-	for (int i = 0; i < 24; i++)
-	{
-		tf = (float)currentTime + i;
-		tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * tf) * 8.0f, cos(0.52f * tf) * 8.f, sin(0.7f * tf) * 8.f));
-		rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
-		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
-		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1));
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
 
-		mMat = tMat * rMat;
-		mvMat = vMat * mMat;
-
-		glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glEnableVertexAttribArray(0);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 24);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
