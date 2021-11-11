@@ -77,10 +77,10 @@ std::string Shader::getTypeStr()
 {
 	switch (_type)
 	{
-	case Shader::VERTEX:
+	case Shader::EType::VERTEX:
 		return "Vertex ";
 		break;
-	case Shader::FRAGMENT:
+	case Shader::EType::FRAGMENT:
 		return "Fragment ";
 		break;
 	default:
@@ -90,7 +90,7 @@ std::string Shader::getTypeStr()
 }
 
 ShaderVert::ShaderVert()
-	:Shader(VERTEX)
+	:Shader(EType::VERTEX)
 {
 	createShader();
 }
@@ -101,7 +101,7 @@ void ShaderVert::createShader()
 }
 
 ShaderFrag::ShaderFrag()
-	:Shader(FRAGMENT)
+	:Shader(EType::FRAGMENT)
 {
 	createShader();
 }

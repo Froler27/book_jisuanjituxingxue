@@ -10,7 +10,7 @@
 class Shader
 {
 public:
-	enum EType {
+	enum class EType {
 		UNDEFINED,
 		VERTEX,
 		FRAGMENT
@@ -42,7 +42,7 @@ protected:
 protected:
 	char* _source{ nullptr };
 	GLuint _id{ 0 };
-	EType _type{ UNDEFINED };
+	EType _type{ EType::UNDEFINED };
 	bool _showLog{ true };
 };
 

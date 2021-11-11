@@ -110,9 +110,10 @@ void display(GLFWwindow* window, double currentTime)
 	//mMat = glm::translate(glm::mat4(1.f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
 
 	float tf;
+	// 用循环绘制24个立方体
 	for (int i = 0; i < 24; i++)
 	{
-		tf = currentTime + i;
+		tf = (float)currentTime + i;
 		tMat = glm::translate(glm::mat4(1.f), glm::vec3(sin(0.35f * tf) * 8.0f, cos(0.52f * tf) * 8.f, sin(0.7f * tf) * 8.f));
 		rMat = glm::rotate(glm::mat4(1.f), 1.75f * (float)currentTime, glm::vec3(0.f, 1.f, 0.f));
 		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1, 0, 0));
