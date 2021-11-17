@@ -2,22 +2,9 @@
 #include "Log.hpp"
 
 
-ShaderProgram ShaderProgram::CreateShaderProgram(const char* vertSource, const char* fragSource)
+ShaderProgram ShaderProgram::CreateShaderProgram(const char* vertexPath, const char* fragmentPath)
 {
-	ShaderVert vertShader;
-	ShaderFrag fragShader;
-
-	vertShader.loadSourceFromFile(vertSource);
-	vertShader.compileShader();
-	fragShader.loadSourceFromFile(fragSource);
-	fragShader.compileShader();
-
-	ShaderProgram vfProgram;
-	vfProgram.attachShader(vertShader.getId());
-	vfProgram.attachShader(fragShader.getId());
-	vfProgram.linkProgram();
-
-	return vfProgram;
+	return ShaderProgram(vertexPath, fragmentPath);
 }
 
 ShaderProgram::ShaderProgram()
@@ -26,14 +13,43 @@ ShaderProgram::ShaderProgram()
 }
 
 
-ShaderProgram::~ShaderProgram()
+ShaderProgram::ShaderProgram(const char* vertexPath, const char* fragmentPath)
 {
+	_id = glCreateProgram();// 创建着色器程序对象
+
+	ShaderVert vertShader;
+	ShaderFrag fragShader;
+
+	vertShader.loadSourceFromFile(vertexPath);
+	vertShader.compileShader();
+	fragShader.loadSourceFromFile(fragmentPath);
+	fragShader.compileShader();
+
+	this->attachShader(vertShader.getId());
+	this->attachShader(fragShader.getId());
+	this->linkProgram();
 }
 
-void ShaderProgram::attachShader(GLuint shaderID)
+void ShaderProgram::setInt(const std::string& name, int value) const
 {
-	glAttachShader(_id, shaderID);// 将着色器加入程序对象
+	glUniform1i(glGetUniformLocation(_id, name.c_str()), value);
 }
+
+void ShaderProgram::setFloat(const std::string& name, float value) const
+{
+	glUniform1f(glGetUniformLocation(_id, name.c_str()), value);
+}
+
+void ShaderProgram::setMatrix4fv(const std::string& name, glm::mat4 value) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()),
+		1, GL_FALSE, glm::value_ptr(value));
+}
+
+//void ShaderProgram::setBool(const std::string& name, bool value) const
+//{
+//	glUniform1i(glGetUniformLocation(_id, name.c_str()), (int)value);
+//}
 
 void ShaderProgram::linkProgram()
 {

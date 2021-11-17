@@ -20,7 +20,7 @@ public:
 public:
 	Shader() {}
 	Shader(EType eType) :_type(eType) {}
-	virtual ~Shader() {}
+	virtual ~Shader() { glDeleteShader(_id); }
 private:
 	virtual void createShader() = 0;
 
