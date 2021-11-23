@@ -2,9 +2,9 @@
 #include "Log.hpp"
 
 
-ShaderProgram ShaderProgram::CreateShaderProgram(const char* vertexPath, const char* fragmentPath)
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgram(const char* vertexPath, const char* fragmentPath)
 {
-	return ShaderProgram(vertexPath, fragmentPath);
+	return std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexPath, fragmentPath));
 }
 
 ShaderProgram::ShaderProgram()
@@ -40,10 +40,10 @@ void ShaderProgram::setFloat(const std::string& name, float value) const
 	glUniform1f(glGetUniformLocation(_id, name.c_str()), value);
 }
 
-void ShaderProgram::setMatrix4fv(const std::string& name, glm::mat4 value) const
+void ShaderProgram::setMatrix4fv(const std::string& name, float* value) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()),
-		1, GL_FALSE, glm::value_ptr(value));
+		1, GL_FALSE, value);
 }
 
 //void ShaderProgram::setBool(const std::string& name, bool value) const
@@ -54,7 +54,7 @@ void ShaderProgram::setMatrix4fv(const std::string& name, glm::mat4 value) const
 void ShaderProgram::linkProgram()
 {
 	glLinkProgram(_id);// 将加入的各个着色器程序进行链接
-	if (_showLog) printProgramLog();
+	printProgramLog();
 }
 
 void ShaderProgram::printProgramLog()

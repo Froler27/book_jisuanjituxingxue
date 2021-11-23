@@ -43,7 +43,7 @@ void Shader::loadSourceFromFile(const char* filePath)
 void Shader::compileShader()
 {
 	glCompileShader(_id);
-	if (_showLog) printShaderLog();
+	printShaderLog();
 }
 
 void Shader::printShaderLog()

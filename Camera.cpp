@@ -19,14 +19,29 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
 void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 {
 	float velocity = _moveSpeed * deltaTime;
-	if (direction == Camera_Movement::FORWARD)
+	switch (direction)
+	{
+	case Camera_Movement::FORWARD:
 		_pos += _front * velocity;
-	if (direction == Camera_Movement::BACKWARD)
+		break;
+	case Camera_Movement::BACKWARD:
 		_pos -= _front * velocity;
-	if (direction == Camera_Movement::LEFT)
+		break;
+	case Camera_Movement::LEFT:
 		_pos -= _right * velocity;
-	if (direction == Camera_Movement::RIGHT)
+		break;
+	case Camera_Movement::RIGHT:
 		_pos += _right * velocity;
+		break;
+	case Camera_Movement::UP:
+		_pos += _up * velocity;
+		break;
+	case Camera_Movement::DOWN:
+		_pos -= _up * velocity;
+		break;
+	default:
+		break;
+	}
 }
 
 void Camera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch /*= true*/)

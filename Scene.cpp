@@ -25,20 +25,21 @@ void Scene::display()
 	static F7::Mat4 vMat;
 	static F7::Mat4 mMat;
 	for (auto model : _models) {
-		useRenderingProgram(model->renderingProgramID());
-		mvLoc = glGetUniformLocation(_curRenderingProgramID, "mv_matrix");
-		projLoc = glGetUniformLocation(_curRenderingProgramID, "proj_matrix");
-		//mvMat = F7::Mat4::Translate(0, -3, -10);
+		if (_curRenderingProgramID != model->getShaderProgram()->getId())
+			model->getShaderProgram()->use();
+		model->useTexture();
+		mvLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "mv_matrix");
+		projLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "proj_matrix");
+		//mvMat = F7::Mat4::Translate(0, 0, 0);
 		vMat = _camera->getViewMatrix();
 		mMat = model->getWorldMatrix();
 		mvMat = vMat * mMat;
 		pMat = _camera->getProjMatrix();
-		glBindVertexArray(model->getVAO());
 		glUniformMatrix4fv(mvLoc, 1, GL_TRUE, mvMat.ptr());
 		glUniformMatrix4fv(projLoc, 1, GL_TRUE, pMat.ptr());
-		//glBindVertexArray(model->getVAO());
-		glEnableVertexAttribArray(0);
-		glDrawArrays(GL_TRIANGLES, 0, model->getVertsNum());
+
+		glBindVertexArray(model->getVAO());
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
 	}
 }

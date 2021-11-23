@@ -65,20 +65,24 @@ int main()
 	Scene scene;
 	scene.setCamera(&camera);
 
-	GLuint renderingProgram = ShaderProgram::CreateShaderProgram(
+	std::shared_ptr<ShaderProgram> spShader = ShaderProgram::CreateShaderProgram(
 		"Shaders/vertShader.glsl",
-		"Shaders/fragShader.glsl").getId();
-	Model cube, pyr;
-	cube.load("Models/cubo.txt");
-	pyr.load("Models/pyramid.txt");
+		"Shaders/fragShader.glsl");
+	Model cube/*, pyr*/;
+	cube.setShaderProgram(spShader);
+	cube.loadModelFile("Models/cubo_with_tc.txt");
+	cube.configData();
+	cube.loadTexture("Images/container.jpg", "ourTexture");
+
+	//pyr.loadModelFile("Models/pyramid.txt");
 
 	cube.position().set(0, -2, 0);
-	pyr.position().set(5, 1, -2);
+	//pyr.position().set(5, 1, -2);
 
-	cube.renderingProgramID() = renderingProgram;
-	pyr.renderingProgramID() = renderingProgram;
+	
+	//pyr.renderingProgramID() = renderingProgram;
 	scene.addModel(&cube);
-	scene.addModel(&pyr);
+	//scene.addModel(&pyr);
 
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -142,6 +146,10 @@ void processInput(GLFWwindow* window)
 		camera.processKeyboard(Camera_Movement::LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.processKeyboard(Camera_Movement::RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		camera.processKeyboard(Camera_Movement::UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		camera.processKeyboard(Camera_Movement::DOWN, deltaTime);
 	static bool tag = true;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
 		if (tag) {

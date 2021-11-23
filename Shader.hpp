@@ -36,8 +36,6 @@ public:
 
 	/** @brief: 获取着色器ID */
 	GLuint getId() { return _id; }
-	/** @brief: 设置是否打印编译信息 */
-	void noLog(bool bShow = false) { _showLog = bShow; }
 
 protected:
 	std::string getTypeStr();// 获取着色器类型的字符串
@@ -47,7 +45,6 @@ protected:
 protected:
 	GLuint _id{ 0 };
 	EType _type{ EType::UNDEFINED };
-	bool _showLog{ true }; // 是否打印着色器编译的信息
 };
 
 
