@@ -36,9 +36,23 @@ namespace F7
 			}
 			return *this;
 		}
+		inline Vec_T getNormalize() const 
+		{
+			Vec_T res = *this;
+			value_type len = length();
+			if (len > 0) {
+				auto inv = 1.f / len;
+#pragma warning(push) 
+#pragma warning(disable:4244) 
+				for (int i = 0; i < N; ++i)
+					res[i] *= inv;
+#pragma warning(pop) 
+			}
+			return res;
+		}
 
-		inline void* ptr() { return (void*)_v; }
-		inline const void* ptr() const { return (void*)_v; }
+		inline value_type* ptr() { return _v; }
+		inline const value_type* ptr() const { return _v; }
 		inline value_type* begin() { return _v; }
 		inline value_type* end() { return _v + N; }
 		inline const value_type* begin() const { return _v; }
@@ -49,7 +63,7 @@ namespace F7
 
 		inline value_type& operator [](int id) { return _v[id]; }
 		inline value_type operator [](int id) const { return _v[id]; }
-		friend std::ostream& operator <<(std::ostream& os, const Vec_T& v) { for (int i = 0; i < N; ++i) { os << v[i]; } return os; }
+		friend std::ostream& operator <<(std::ostream& os, const Vec_T& v) { for (int i = 0; i < N; ++i) { os << v[i] << " "; } return os; }
 		
 		inline Vec_T operator +(const Vec_T& v) const { Vec_T res; for (int i = 0; i < N; ++i) { res[i] = _v[i] + v[i]; } return res; }
 		inline Vec_T& operator +=(const Vec_T& v) { for (int i = 0; i < N; ++i) { _v[i] += v[i]; } return *this; }

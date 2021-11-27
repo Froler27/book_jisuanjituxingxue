@@ -7,6 +7,18 @@ std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgram(const char* ve
 	return std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexPath, fragmentPath));
 }
 
+bool ShaderProgram::checkOpenGLError()
+{
+	bool foundError = false;
+	int glErr = glGetError();
+	while (glErr != GL_NO_ERROR) {
+		Log() << "glError: " << glErr << Log::ENDL;
+		foundError = true;
+		glErr = glGetError();
+	}
+	return foundError;
+}
+
 ShaderProgram::ShaderProgram()
 {
 	_id = glCreateProgram();// 创建着色器程序对象
@@ -38,6 +50,22 @@ void ShaderProgram::setInt(const std::string& name, int value) const
 void ShaderProgram::setFloat(const std::string& name, float value) const
 {
 	glUniform1f(glGetUniformLocation(_id, name.c_str()), value);
+}
+
+void ShaderProgram::setVec2f(const std::string& name, const F7::Vec2f& value) const
+{
+	glUniform2fv(glGetUniformLocation(_id, name.c_str()), 1, value.ptr());
+}
+
+void ShaderProgram::setVec3f(const std::string& name, const F7::Vec3f& value) const
+{
+	glUniform3fv(glGetUniformLocation(_id, name.c_str()), 1, value.ptr());
+}
+
+void ShaderProgram::setVec4f(const std::string& name, const F7::Vec4f& value) const
+{
+	//glUniform4fv(glGetUniformLocation(_id, name.c_str()), 1, value.ptr());
+	glUniform4f(glGetUniformLocation(_id, name.c_str()), value.x(), value.y(), value.z(), value.w());
 }
 
 void ShaderProgram::setMatrix4fv(const std::string& name, float* value) const

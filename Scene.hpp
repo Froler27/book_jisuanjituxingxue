@@ -28,5 +28,11 @@ private:
 	float deltaTime{ 0 };	// time between current frame and last frame
 	float lastFrame{ 0 };
 	bool firstMouse{ true };
+
+	GLuint _projViewWorldMatLoc;	// 最终矩阵地址
+	F7::Mat4 _projViewWorldMat;	// 最终矩阵
+	F7::Mat4 _projMat;			// 投影矩阵
+	F7::Mat4 _viewMat;			// 视角矩阵
+	F7::Mat4 _worldMat;			// 世界矩阵
 };
 

@@ -61,18 +61,6 @@ void Shader::printShaderLog()
 	}
 }
 
-bool Shader::checkOpenGLError()
-{
-	bool foundError = false;
-	int glErr = glGetError();
-	while (glErr != GL_NO_ERROR) {
-		Log() << "glError: " << glErr << Log::ENDL;
-		foundError = true;
-		glErr = glGetError();
-	}
-	return foundError;
-}
-
 std::string Shader::getTypeStr()
 {
 	switch (_type)

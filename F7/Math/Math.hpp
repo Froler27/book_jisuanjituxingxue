@@ -70,6 +70,19 @@ namespace F7
 		static inline float atan2(float y, float x) { return std::atan2(y, x); }
 		static inline double atan2(double y, double x) { return std::atan2(y, x); }
 		static inline long double atan2(long double y, long double x) { return std::atan2(y, x); }
+		
+		static inline char abs(char value) { return char(std::abs((int)value)); }
+		static inline short abs(short value) { return short(std::abs((int)value)); }
+		static inline int abs(int value) { return std::abs(value); }
+		static inline long abs(long value) { return std::abs(value); }
+		static inline long long abs(long long value) { return std::abs(value); }
+		static inline float abs(float value) { return std::fabs(value); }
+		static inline double abs(double value) { return std::fabs(value); }
+		static inline long double abs(long double value) { return std::fabs(value); }
+
+		static inline float fabs(float value) { return std::fabs(value); }
+		static inline double fabs(double value) { return std::fabs(value); }
+		static inline long double fabs(long double value) { return std::fabs(value); }
 
 		
 

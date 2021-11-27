@@ -1,14 +1,13 @@
 #version 430
 
-in vec4 varyingColor;
-in vec2 TexCoord;
-out vec4 color;
+in vec4 color_v;
+in vec2 texCoord_v;
+out vec4 color_f;
 
-uniform sampler2D ourTexture;
-
+uniform sampler2D texture0;
+uniform sampler2D texture1;
 
 void main(void)
 {
-	color = varyingColor;
-	color = texture(ourTexture, TexCoord);
+	color_f = mix(texture(texture0, texCoord_v), texture(texture1, texCoord_v), 0.25);
 }

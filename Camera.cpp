@@ -1,14 +1,14 @@
 #include "Camera.hpp"
 
 Camera::Camera(F7::Vec3 pos /*= F7::Vec3()*/, F7::Vec3 up /*= F7::Vec3(0.f, 1.f, 0.f)*/, float yaw /*= YAW*/, float pitch /*= PITCH*/)
-	: _pos(pos), _front(0, 0, -1), _wordUp(up), _yaw(yaw), _pitch(pitch),
+	: _pos(pos), _wordUp(up), _yaw(yaw), _pitch(pitch),
 	_moveSpeed(SPEED), _mouseSensitivity(SENSITIVITY), _zoom(ZOOM)
 {
 	updateCameraVectors();
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
-	: _front(0.0f, 0.0f, -1.0f), _moveSpeed(SPEED), _mouseSensitivity(SENSITIVITY), _zoom(ZOOM)
+	:  _moveSpeed(SPEED), _mouseSensitivity(SENSITIVITY), _zoom(ZOOM)
 {
 	_pos.set(posX, posY, posZ);
 	_wordUp.set(upX, upY, upZ);
@@ -69,9 +69,9 @@ void Camera::updateCameraVectors()
 {
 	// calculate the new Front vector
 	F7::Vec3 front;
-	front.x() = cos(F7::Math::Degree2Radian(_yaw)) * cos(F7::Math::Degree2Radian(_pitch));
-	front.y() = sin(F7::Math::Degree2Radian(_pitch));
-	front.z() = sin(F7::Math::Degree2Radian(_yaw)) * cos(F7::Math::Degree2Radian(_pitch));
+	front.x() = cos(F7::Math::Degree2Radian(_pitch)) * sin(F7::Math::Degree2Radian(_yaw));
+	front.y() = cos(F7::Math::Degree2Radian(_pitch)) * cos(F7::Math::Degree2Radian(_yaw));
+	front.z() = sin(F7::Math::Degree2Radian(_pitch));
 
 	_front = front.normalize();
 	// also re-calculate the Right and Up vector
