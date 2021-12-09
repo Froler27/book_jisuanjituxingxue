@@ -153,6 +153,28 @@ F7::Mat4 Model::getWorldMatrix()
 	return res;
 }
 
+void Model::setMaterial(const Material& material)
+{
+	//_pMaterial = pMaterial;
+	_spShader->setVec4f("material.ambient", material.ambient);
+	_spShader->setVec4f("material.diffuse", material.diffuse);
+	_spShader->setVec4f("material.specular", material.specular);
+	_spShader->setFloat("material.shininess", material.shininess);
+}
+
+void Model::setGlobalAmbient(const Vec4f& globalAmbient)
+{
+	_spShader->setVec4f("globalAmbient", globalAmbient);
+}
+
+void Model::setLight(const LightSource& pLightSource)
+{
+	_spShader->setVec4f("light.ambient", pLightSource.ambient);
+	_spShader->setVec4f("light.diffuse", pLightSource.diffuse);
+	_spShader->setVec4f("light.specular", pLightSource.specular);
+	_spShader->setVec3f("light.position", pLightSource.position);
+}
+
 void Sphere::genData()
 {
 	genEBO();
@@ -213,10 +235,10 @@ void Torus::genData()
 		center.set(_radius1 * Math::cos(hint1 * i),
 			_radius1 * Math::sin(hint1 * i), 0);
 		for (int j = 0; j <= _prec2; ++j) {
-			value_type r = _radius1 + _radius2 * Math::cos(hint2 * j+PI);// +PI 是为了从内圈中间开始添加点
+			value_type r = _radius1 + _radius2 * Math::cos(value_type(hint2 * j+PI));// +PI 是为了从内圈中间开始添加点
 			aPoint.set(r * Math::cos(hint1 * i),
 				r * Math::sin(hint1 * i),
-				_radius2 * Math::sin(hint2 * j+ PI));
+				_radius2 * Math::sin(value_type(hint2 * j+ PI)));
 			push_back_vec3(aPoint);
 			push_back_vec3((aPoint - center).getNormalize());// 法向量
 			_verts.push_back(1.f * i / _prec1);//纹理X坐标
@@ -231,6 +253,11 @@ void Torus::genData()
 			_indices.push_back((i + 1) * (_prec2 + 1) + j);
 		}
 	}
+}
+
+void Torus::draw()
+{
+	Model::draw();
 }
 
 

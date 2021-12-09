@@ -18,6 +18,7 @@
 #include "F7/Matrix/Mat.h"
 #include "Camera.hpp"
 #include "Scene.hpp"
+#include "Material.hpp"
 
 using namespace std;
 
@@ -85,8 +86,12 @@ int main()
 	sphere.loadTexture("Images/texture/star/io.jpg", "texture0", 0);
 
 	std::shared_ptr<ShaderProgram> spShader_v_n_u1c = ShaderProgram::CreateShaderProgram(
-		"Shaders/vert_v_n.glsl",
-		"Shaders/frag_u1color.glsl");
+		//"Shaders/vert_Gouraud.glsl",
+		//"Shaders/frag.glsl");
+		"Shaders/vert_Phong.glsl",
+		"Shaders/frag_Phong.glsl");
+		//"Shaders/vert_Blinn_Phong.glsl",
+		//"Shaders/frag_Blinn_Phong.glsl");
 
 	Torus torus;
 	//torus.setRaius(1000);
@@ -96,19 +101,70 @@ int main()
 	torus.getShaderProgram()->use();
 	F7::Vec4f color_u{ 1,1,0,1 };
 	torus.getShaderProgram()->setVec4f("color_u", color_u);
-	ShaderProgram::checkOpenGLError();
-	//pyr.loadModelFile("Models/pyramid.txt");
+	torus.setMaterial(MaterialGold);
+	torus.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
+	LightSource light{
+		{0,0,0,1}
+		,{1,1,1,1}
+		,{1,1,1,1}
+		,{0,0,10}
+	};
+	torus.setLight(light);
+
+	std::shared_ptr<ShaderProgram> spShader_Blinn_Phong = ShaderProgram::CreateShaderProgram(
+		"Shaders/vert_Blinn_Phong.glsl",
+		"Shaders/frag_Blinn_Phong.glsl");
+	Torus torus1;
+	//torus.setRaius(1000);
+	torus1.genData();
+	torus1.configData_v_n();
+	torus1.setShaderProgram(spShader_Blinn_Phong);
+	torus1.getShaderProgram()->use();
+	//F7::Vec4f color_u{ 1,1,0,1 };
+	torus1.getShaderProgram()->setVec4f("color_u", color_u);
+	torus1.setMaterial(MaterialGold);
+	torus1.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
+	LightSource light1{
+		{0,0,0,1}
+		,{1,1,1,1}
+		,{1,1,1,1}
+		,{3,0,10}
+	};
+	torus.setLight(light1);
+
+
+	std::shared_ptr<ShaderProgram> spShader_Gouraud = ShaderProgram::CreateShaderProgram(
+		"Shaders/vert_Gouraud.glsl",
+		"Shaders/frag.glsl");
+	Torus torus2;
+	//torus.setRaius(1000);
+	torus2.genData();
+	torus2.configData_v_n();
+	torus2.setShaderProgram(spShader_Gouraud);
+	torus2.getShaderProgram()->use();
+	torus2.getShaderProgram()->setVec4f("color_u", color_u);
+	torus2.setMaterial(MaterialGold);
+	torus2.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
+	LightSource light2{
+		{0,0,0,1}
+		,{1,1,1,1}
+		,{1,1,1,1}
+		,{-3,0,10}
+	};
+	torus.setLight(light2);
 
 	cube.position().set(0, -2, 0);
 	sphere.position().set(0, 2, 0);
-	torus.position().set(0, 0, 2);
-	//pyr.position().set(5, 1, -2);
-
+	torus.position().set(0, 0, -2);
+	torus1.position().set(3, 0, -2);
+	torus2.position().set(-3, 0, -2);
 	
 	//pyr.renderingProgramID() = renderingProgram;
-	scene.addModel(&cube);
-	scene.addModel(&sphere);
+	//scene.addModel(&cube);
+	//scene.addModel(&sphere);
 	scene.addModel(&torus);
+	scene.addModel(&torus1);
+	scene.addModel(&torus2);
 	//scene.addModel(&pyr);
 
 	int width, height;
@@ -174,9 +230,9 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.processKeyboard(Camera_Movement::RIGHT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::UP, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		camera.processKeyboard(Camera_Movement::DOWN, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		camera.processKeyboard(Camera_Movement::UP, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
 		camera.addMouseMoveSpeed(0.1);
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)

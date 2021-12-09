@@ -22,12 +22,15 @@ void Scene::display()
 	for (auto model : _models) {
 		useRenderingProgram(model->getShaderProgram()->getId());
 			
-		_projViewWorldMatLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "proj_view_world_matrix");
+		_worldMatLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "world_matrix");
+		_viewMatLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "view_matrix");
+		_projMatLoc = glGetUniformLocation(model->getShaderProgram()->getId(), "proj_matrix");
 		_viewMat = _camera->getViewMatrix();
 		_worldMat = model->getWorldMatrix();
 		_projMat = _camera->getProjMatrix();
-		_projViewWorldMat = _projMat* _viewMat * _worldMat;
-		glUniformMatrix4fv(_projViewWorldMatLoc, 1, GL_TRUE, _projViewWorldMat.ptr());
+		glUniformMatrix4fv(_worldMatLoc, 1, GL_TRUE, _worldMat.ptr());
+		glUniformMatrix4fv(_viewMatLoc, 1, GL_TRUE, _viewMat.ptr());
+		glUniformMatrix4fv(_projMatLoc, 1, GL_TRUE, _projMat.ptr());
 
 		model->draw();
 	}

@@ -30,6 +30,9 @@ private:
 	bool firstMouse{ true };
 
 	GLuint _projViewWorldMatLoc;	// 最终矩阵地址
+	GLuint _worldMatLoc;	// 世界矩阵地址
+	GLuint _viewMatLoc;	// 视角矩阵地址
+	GLuint _projMatLoc;	// 投影矩阵地址
 	F7::Mat4 _projViewWorldMat;	// 最终矩阵
 	F7::Mat4 _projMat;			// 投影矩阵
 	F7::Mat4 _viewMat;			// 视角矩阵

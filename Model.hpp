@@ -6,6 +6,7 @@
 #include <memory>
 #include "F7/F7.hpp"
 #include "ShaderProgram.hpp"
+#include "Material.hpp"
 
 
 class Model
@@ -42,7 +43,7 @@ public:
 	void useTexture();
 	inline void genEBO();
 	bool validEBO() { return _bUseEBO; }
-	void draw();
+	virtual void draw();
 	void setColorBinding(EBindingType eType) { _colorBinding = eType; }
 	void setNormalBinding(EBindingType eType) { _normalBinding = eType; }
 
@@ -71,6 +72,10 @@ public:
 		_verts.push_back(v[2]);
 	}
 
+	void setMaterial(const Material& pMaterial);
+	void setGlobalAmbient(const Vec4f& globalAmbient);
+	void setLight(const LightSource& pLightSource);
+
 protected:
 	GLuint _vao{ 0 };
 	GLuint _vbo{ 0 };
@@ -86,6 +91,7 @@ protected:
 	F7::Vec3 _pos{ 0 };
 	F7::Vec3 _rot{ 0 };
 	F7::Vec3 _sca{ 1 };
+	Material* _pMaterial{ nullptr };
 
 	std::vector<value_type> _verts;
 	std::vector<int> _indices;
@@ -136,6 +142,7 @@ public:
 	Torus() { init(); }
 
 	virtual void genData() override;
+	virtual void draw() override;
 
 	void setRadius(value_type r1, value_type r2) { _radius1 = r1; _radius2 = r2; }
 	void setPrec(int prec1, int prec2) { _prec1 = prec1; _prec2 = prec2; }
