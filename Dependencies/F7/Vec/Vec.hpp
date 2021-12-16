@@ -5,6 +5,12 @@
 
 namespace F7
 {
+
+	template <typename T>
+	class Vec2_T;
+	template <typename T>
+	class Vec3_T;
+
 	template <typename T, int N>
 	class Vec_T
 	{
@@ -81,6 +87,20 @@ namespace F7
 
 		inline bool operator == (const Vec_T& v) const { for (int i = 0; i < N; ++i) { if (_v[i] != v[i]) return false; } return true; }
 		inline bool operator != (const Vec_T& v) const { return !(_v == v); }
+
+
+		inline Vec2_T<value_type> xy() { 
+			if (size() >= 2)
+				return Vec2_T<value_type>(_v[0], _v[1]);
+			else
+				return Vec2_T<value_type>();
+		}
+		inline Vec3_T<value_type> xyz() { 
+			if (size() >= 3)
+				return Vec3_T<value_type>(_v[0], _v[1], _v[2]);
+			else
+				return Vec3_T<value_type>();
+		}
 
 	protected:
 		T _v[N]{};
@@ -196,9 +216,10 @@ namespace F7
 		using base_type::_v;
 
 		Vec4_T() {}
-		Vec4_T(value_type e) : base_type(e) {}
+		Vec4_T(base_type v): base_type(v) {}
+		explicit Vec4_T(value_type e) : base_type(e) {}
 		Vec4_T(value_type e0, value_type e1, value_type e2, value_type e3) { _v[0] = e0, _v[1] = e1, _v[2] = e2, _v[3] = e3; }
-		Vec4_T(Vec3_T<value_type> vt3, value_type e3 = 0) { _v[0] = vt3[0], _v[1] = vt3[1], _v[2] = vt3[2], _v[3] = e3; }
+		explicit Vec4_T(Vec3_T<value_type> vt3, value_type e3 = 0) { _v[0] = vt3[0], _v[1] = vt3[1], _v[2] = vt3[2], _v[3] = e3; }
 		Vec4_T(value_type e0, Vec3_T<value_type> vt3) { _v[0] = e0, _v[1] = vt3[0], _v[2] = vt3[1], _v[3] = vt3[2]; }
 		Vec4_T(Vec2_T<value_type> v0, Vec2_T<value_type> v1) { _v[0] = v0[0], _v[1] = v0[1], _v[2] = v1[0], _v[3] = v1[1]; }
 		~Vec4_T() {}

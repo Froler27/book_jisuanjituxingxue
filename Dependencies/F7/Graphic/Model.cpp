@@ -3,8 +3,8 @@
 #include <sstream>
 #include <fstream>
 
-#include "Dependencies/stb_image.h"
-#include "Log.hpp"
+#include "stb_image.h"
+#include "F7/Common/Log.hpp"
 
 using namespace F7;
 
@@ -167,7 +167,7 @@ void Model::setGlobalAmbient(const Vec4f& globalAmbient)
 	_spShader->setVec4f("globalAmbient", globalAmbient);
 }
 
-void Model::setLight(const LightSource& pLightSource)
+void Model::setLight(const PointLight& pLightSource)
 {
 	_spShader->setVec4f("light.ambient", pLightSource.ambient);
 	_spShader->setVec4f("light.diffuse", pLightSource.diffuse);
@@ -317,4 +317,16 @@ void Cube::genData()
 		_indices.push_back(4 * i); _indices.push_back(4 * i + 1); _indices.push_back(4 * i + 2);
 		_indices.push_back(4 * i + 2); _indices.push_back(4 * i + 1); _indices.push_back(4 * i + 3);
 	}
+}
+
+void Cube::draw()
+{
+	useTexture();
+	glBindVertexArray(_vao);
+	if (_bUseEBO)
+		glDrawElements(GL_TRIANGLES, (GLsizei)_indices.size(), GL_UNSIGNED_INT, 0);
+	else
+		glDrawArrays(GL_TRIANGLES, 0, _vertsNum);
+	//glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 100000);
+	glBindVertexArray(0);
 }

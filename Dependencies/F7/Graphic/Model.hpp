@@ -2,11 +2,13 @@
 
 #include <GL/glew.h>
 #include <vector>
+#include <string>
 #include <map>
 #include <memory>
 #include "F7/F7.hpp"
-#include "ShaderProgram.hpp"
-#include "Material.hpp"
+#include "F7/Graphic/Shader/ShaderProgram.hpp"
+#include "F7/Graphic/Material.hpp"
+#include "F7/Graphic/LightSource.hpp"
 
 
 class Model
@@ -35,7 +37,9 @@ public:
 	~Model() {}
 
 	bool loadModelFile(const char* modelPath);
+	bool loadModelFile(const std::string& modelPath) { return loadModelFile(modelPath.c_str()); }
 	bool loadTexture(const char* texturePath, const char* uniformName, int texUnit);
+	bool loadTexture(const std::string& texturePath, const std::string& uniformName, int texUnit) { return loadTexture(texturePath.c_str(), uniformName.c_str(), texUnit); }
 	virtual void genData() {}
 	void configData_v_n();
 	void configData_v_n_tc();
@@ -44,6 +48,7 @@ public:
 	inline void genEBO();
 	bool validEBO() { return _bUseEBO; }
 	virtual void draw();
+
 	void setColorBinding(EBindingType eType) { _colorBinding = eType; }
 	void setNormalBinding(EBindingType eType) { _normalBinding = eType; }
 
@@ -74,7 +79,7 @@ public:
 
 	void setMaterial(const Material& pMaterial);
 	void setGlobalAmbient(const Vec4f& globalAmbient);
-	void setLight(const LightSource& pLightSource);
+	void setLight(const PointLight& pLightSource);
 
 protected:
 	GLuint _vao{ 0 };
@@ -110,6 +115,7 @@ public:
 	const value_type length() const { return _sideLength; }
 
 	virtual void genData() override;
+	virtual void draw() override;
 
 private:
 	value_type _sideLength{ 1 };

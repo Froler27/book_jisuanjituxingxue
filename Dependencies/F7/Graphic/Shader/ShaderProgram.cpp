@@ -1,10 +1,15 @@
 #include "ShaderProgram.hpp"
-#include "Log.hpp"
+#include "F7/Common/Log.hpp"
 
 
 std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgram(const char* vertexPath, const char* fragmentPath)
 {
 	return std::unique_ptr<ShaderProgram>(new ShaderProgram(vertexPath, fragmentPath));
+}
+
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgram(const std::string& vertexPath, const std::string& fragmentPath)
+{
+	return CreateShaderProgram(vertexPath.c_str(), fragmentPath.c_str());
 }
 
 bool ShaderProgram::checkOpenGLError()

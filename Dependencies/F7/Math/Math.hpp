@@ -37,6 +37,19 @@ namespace F7
 		static inline float RadiansToDegrees(float angle) { return angle * 180.0f / (float)PI; }
 		static inline double RadiansToDegrees(double angle) { return angle * 180.0 / PI; }
 
+		template <typename T>
+		static inline void swap(T& t1, T& t2)
+		{
+			T tem = t1;
+			t1 = t2;
+			t2 = tem;
+		}
+		template <typename T>
+		static inline T clamp(T res, T t1, T t2)
+		{
+			return res > t2 ? t2 : (res < t1 ? t1 : res);
+		}
+
 		static inline float sqrt(int value) { return (float)std::sqrtf((float)value); }
 		static inline float sqrt(float value) { return std::sqrtf(value); }
 		static inline double sqrt(double value) { return std::sqrt(value); }

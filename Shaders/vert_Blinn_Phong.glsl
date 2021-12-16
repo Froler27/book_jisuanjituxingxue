@@ -29,15 +29,13 @@ layout (location = 1) in vec3 normal;
 out vec3 position_v;// 视觉空间中的顶点位置
 out vec3 normal_v;// 视觉空间中的法线
 out vec3 lightDir_v;// 指向光源的向量
-out vec3 halfVector_v;
 
 
 void main(void)
 {
 	position_v = (view_matrix * world_matrix * vec4(position, 1)).xyz;
-	lightDir_v = normalize((view_matrix*vec4(light.position,1)).xyz - position_v);
+	lightDir_v = (view_matrix*vec4(light.position,1)).xyz - position_v;
 	normal_v = (view_matrix * world_matrix * vec4(normal, 0)).xyz;
-	halfVector_v = lightDir_v - normalize(position_v);// L + V; V = -P; ==> L - P
 
 	gl_Position = proj_matrix * vec4(position_v,1);
 }

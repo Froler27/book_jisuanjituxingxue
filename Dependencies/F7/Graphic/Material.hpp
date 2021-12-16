@@ -14,16 +14,6 @@ struct Material
 	value_type shininess;		// 光泽
 }; 
 
-struct LightSource
-{
-	using value_type = float;
-
-	Vec4_T<value_type> ambient;	// 环境光
-	Vec4_T<value_type> diffuse;	// 漫反射
-	Vec4_T<value_type> specular;// 镜面反射
-	Vec3_T<value_type> position;		// 位置
-};
-
 // 黄金
 const Material MaterialGold{
 	{0.24725f, 0.1995f, 0.0745f, 1},

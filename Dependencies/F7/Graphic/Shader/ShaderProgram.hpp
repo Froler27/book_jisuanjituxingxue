@@ -14,6 +14,7 @@ class ShaderProgram
 public:
 	/** @brief: 创建着色器程序 */
 	static std::unique_ptr<ShaderProgram> CreateShaderProgram(const char* vertexPath, const char* fragmentPath);
+	static std::unique_ptr<ShaderProgram> CreateShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
 	static bool checkOpenGLError();
 public:
 	ShaderProgram();

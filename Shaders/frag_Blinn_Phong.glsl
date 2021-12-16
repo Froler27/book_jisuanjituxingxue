@@ -22,7 +22,6 @@ uniform Material material;
 in vec3 position_v;// 视觉空间中的顶点位置
 in vec3 normal_v;// 视觉空间中的法线
 in vec3 lightDir_v;// 指向光源的向量
-in vec3 halfVector_v;
 out vec4 color_f;
 
 void main(void)
@@ -30,7 +29,7 @@ void main(void)
 	vec3 N = normalize(normal_v);
 	vec3 L = normalize(lightDir_v);
 	vec3 V = normalize(-position_v);
-	vec3 H = normalize(halfVector_v);
+	vec3 H = normalize(L + V);
 
 	vec3 ambient = ((globalAmbient + light.ambient)*material.ambient).xyz;
 	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0);

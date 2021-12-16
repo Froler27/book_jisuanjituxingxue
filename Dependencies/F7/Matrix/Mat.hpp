@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Math/Math.hpp"
-#include "../Vec/Vec.hpp"
-#include "../../Log.hpp"
+#include "F7/Math/Math.hpp"
+#include "F7/Vec/Vec.hpp"
+#include "F7/Common/Log.hpp"
 
 namespace F7
 {
@@ -163,8 +163,8 @@ namespace F7
 		using base_type = MatMxN_T<T, N, N>;
 		using VecN = Vec_T<value_type, N>;
 		using base_type::_m;
-		static void invert(MatN_T& m);
-		static MatN_T getInverse(MatN_T& m);
+		//static void Invert(MatN_T& m);
+		//static MatN_T GetInverse(MatN_T& m);
 	public:
 		MatN_T() {}
 		MatN_T(value_type e) {
@@ -351,6 +351,66 @@ namespace F7
 		Mat4_T() {}
 		Mat4_T(value_type e) : base_type(e) {}
 
+		inline bool invert()
+		{
+			unsigned int indxc[4], indxr[4], ipiv[4];
+			unsigned int i, j, k, l, ll;
+			unsigned int icol = 0;
+			unsigned int irow = 0;
+			value_type temp, pivinv, dum, big;
+
+			for (j = 0; j < 4; j++) ipiv[j] = 0;
+
+			for (i = 0; i < 4; i++)
+			{
+				big = 0.0;
+				for (j = 0; j < 4; j++)
+					if (ipiv[j] != 1)
+						for (k = 0; k < 4; k++)
+						{
+							if (ipiv[k] == 0)
+							{
+								if (Math::abs(_m[j][k]) >= big)
+								{
+									big = Math::abs(_m[j][k]);
+									irow = j;
+									icol = k;
+								}
+							}
+							else if (ipiv[k] > 1)
+								return false;
+						}
+				++(ipiv[icol]);
+				if (irow != icol)
+					for (l = 0; l < 4; l++)
+						Math::swap(_m[irow][l], _m[icol][l]);
+
+				indxr[i] = irow;
+				indxc[i] = icol;
+				if (_m[icol][icol] == 0)
+					return false;
+
+				pivinv = 1.0 / _m[icol][icol];
+				_m[icol][icol] = 1;
+				for (l = 0; l < 4; l++) _m[icol][l] *= pivinv;
+				for (ll = 0; ll < 4; ll++)
+					if (ll != icol)
+					{
+						dum = _m[ll][icol];
+						_m[ll][icol] = 0;
+						for (l = 0; l < 4; l++) _m[ll][l] -= _m[icol][l] * dum;
+					}
+			}
+			for (int lx = 4; lx > 0; --lx)
+			{
+				if (indxr[lx - 1] != indxc[lx - 1])
+					for (k = 0; k < 4; k++) 
+						Math::swap(_m[k][indxr[lx - 1]], _m[k][indxc[lx - 1]]);
+			}
+
+			return true;
+		}
+
 		inline void set(value_type e00, value_type e01, value_type e02, value_type e03,
 			value_type e10, value_type e11, value_type e12, value_type e13,
 			value_type e20, value_type e21, value_type e22, value_type e23,
@@ -376,6 +436,17 @@ namespace F7
 		}
 
 		Quat_T<value_type> getRotate() const;
+
+		//F7::Vec3_T<value_type> operator * (const F7::Vec3_T<value_type>& v3) {
+		//	F7::Vec4_T<value_type> res(v3, 1);
+		//	res = (*this) * res;
+		//	return res.xyz();
+		//}
+		//F7::Vec4_T<value_type> operator * (const F7::Vec4_T<value_type>& v4) {
+		//	F7::Vec4_T<value_type> res(v4);
+		//	res = (*(base_type*)(this)) * res;
+		//	return res;
+		//}
 
 		// TODO: setR... setS....
 		Mat4_T& operator = (const base_type::base_type& m) {

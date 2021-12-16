@@ -8,33 +8,36 @@
 //#include <glad/glad.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-#include "ShaderProgram.hpp"
-#include "Log.hpp"
+#include "F7/Graphic/Shader/ShaderProgram.hpp"
+#include "F7/Common/Log.hpp"
 #include "F7/Vec/Vec.h"
 #include "F7/Matrix/Mat.h"
-#include "Camera.hpp"
-#include "Scene.hpp"
-#include "Material.hpp"
+#include "F7/Graphic/Camera/Camera.hpp"
+#include "F7/Graphic/Scene.hpp"
+#include "F7/Graphic/Material.hpp"
 
 using namespace std;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow* window);
 void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+const string PATH = "C:/Users/16634/source/book_jisuanjituxingxue/";
+
 // camera
 Camera camera{ F7::Vec3(0.0f, 0.0f, 3.0f) };
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+bool grapMouse = true;
+bool mouseLeftBtnPressed = false;
+bool mouseRightBtnPressed = false;
 
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -50,11 +53,14 @@ int main()
 	// 创建窗口，参数为 宽、高、标题、允许全屏显示、资源共享
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Chapter2 - program1", nullptr, nullptr);
 	glfwMakeContextCurrent(window);// 将窗口与当前 OpenGL 上下文关联起来
+	camera._width = SCR_WIDTH;
+	camera._height = SCR_HEIGHT;
 
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	glewExperimental = GL_TRUE;// 为了解决电脑适配问题，可以删除如果不会出错
 	if (glewInit() != GLEW_OK) { exit(EXIT_FAILURE); }// 初始化glew，使得可以调用 opengl 函数
@@ -66,32 +72,43 @@ int main()
 	Scene scene;
 	scene.setCamera(&camera);
 	std::shared_ptr<ShaderProgram> spShader = ShaderProgram::CreateShaderProgram(
-		"Shaders/vertShader.glsl",
-		"Shaders/fragShader.glsl");
+		PATH + "Shaders/vertShader.glsl",
+		PATH + "Shaders/fragShader.glsl");
+
+	std::shared_ptr<ShaderProgram> spShader_Blinn_Phong = ShaderProgram::CreateShaderProgram(
+		PATH + "Shaders/vert_Blinn_Phong.glsl",
+		PATH + "Shaders/frag_Blinn_Phong.glsl");
+
+	PointLight pointLight;
+	ParallelLight parallelLight;
+
 	Cube cube/*, pyr*/;
 	cube.genData();
 	cube.configData_v_n_tc();
-	cube.setShaderProgram(spShader);
-	cube.loadTexture("Images/container.jpg", "texture0", 0);
-	cube.loadTexture("Images/awesomeface.png", "texture1", 1);
+	cube.setShaderProgram(spShader_Blinn_Phong);
+	cube.loadTexture(PATH + "Images/container.jpg", "texture0", 0);
+	cube.loadTexture(PATH + "Images/awesomeface.png", "texture1", 1);
 
 	Sphere sphere;
 	//sphere.setRaius(1000);
 	sphere.genData();
 	sphere.configData_v_n_tc();
 	std::shared_ptr<ShaderProgram> spShaderVNTC = ShaderProgram::CreateShaderProgram(
-		"Shaders/vertShader_v_n_tc.glsl",
-		"Shaders/fragShader_1tex.glsl");
+		PATH + "Shaders/vertShader_v_n_tc.glsl",
+		PATH + "Shaders/fragShader_1tex.glsl");
 	sphere.setShaderProgram(spShaderVNTC);
-	sphere.loadTexture("Images/texture/star/io.jpg", "texture0", 0);
+	sphere.loadTexture(PATH + "Images/texture/star/io.jpg", "texture0", 0);
 
 	std::shared_ptr<ShaderProgram> spShader_v_n_u1c = ShaderProgram::CreateShaderProgram(
 		//"Shaders/vert_Gouraud.glsl",
 		//"Shaders/frag.glsl");
-		"Shaders/vert_Phong.glsl",
-		"Shaders/frag_Phong.glsl");
+		PATH + "Shaders/vert_Phong.glsl",
+		PATH + "Shaders/frag_Phong.glsl");
 		//"Shaders/vert_Blinn_Phong.glsl",
 		//"Shaders/frag_Blinn_Phong.glsl");
+	std::shared_ptr<ShaderProgram> spShader_Gouraud = ShaderProgram::CreateShaderProgram(
+		PATH + "Shaders/vert_Gouraud.glsl",
+		PATH + "Shaders/frag.glsl");
 
 	Torus torus;
 	//torus.setRaius(1000);
@@ -99,21 +116,14 @@ int main()
 	torus.configData_v_n();
 	torus.setShaderProgram(spShader_v_n_u1c);
 	torus.getShaderProgram()->use();
-	F7::Vec4f color_u{ 1,1,0,1 };
-	torus.getShaderProgram()->setVec4f("color_u", color_u);
+	//F7::Vec4f color_u{ 1,1,0,1 };
+	//torus.getShaderProgram()->setVec4f("color_u", color_u);
 	torus.setMaterial(MaterialGold);
 	torus.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
-	LightSource light{
-		{0,0,0,1}
-		,{1,1,1,1}
-		,{1,1,1,1}
-		,{0,0,10}
-	};
-	torus.setLight(light);
+	
+	torus.setLight(pointLight);
 
-	std::shared_ptr<ShaderProgram> spShader_Blinn_Phong = ShaderProgram::CreateShaderProgram(
-		"Shaders/vert_Blinn_Phong.glsl",
-		"Shaders/frag_Blinn_Phong.glsl");
+	
 	Torus torus1;
 	//torus.setRaius(1000);
 	torus1.genData();
@@ -121,46 +131,35 @@ int main()
 	torus1.setShaderProgram(spShader_Blinn_Phong);
 	torus1.getShaderProgram()->use();
 	//F7::Vec4f color_u{ 1,1,0,1 };
-	torus1.getShaderProgram()->setVec4f("color_u", color_u);
+	//torus1.getShaderProgram()->setVec4f("color_u", color_u);
 	torus1.setMaterial(MaterialGold);
 	torus1.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
-	LightSource light1{
-		{0,0,0,1}
-		,{1,1,1,1}
-		,{1,1,1,1}
-		,{3,0,10}
-	};
-	torus.setLight(light1);
+	
+	torus.setLight(pointLight);
 
 
-	std::shared_ptr<ShaderProgram> spShader_Gouraud = ShaderProgram::CreateShaderProgram(
-		"Shaders/vert_Gouraud.glsl",
-		"Shaders/frag.glsl");
+	
 	Torus torus2;
 	//torus.setRaius(1000);
 	torus2.genData();
 	torus2.configData_v_n();
 	torus2.setShaderProgram(spShader_Gouraud);
 	torus2.getShaderProgram()->use();
-	torus2.getShaderProgram()->setVec4f("color_u", color_u);
+	//torus2.getShaderProgram()->setVec4f("color_u", color_u);
 	torus2.setMaterial(MaterialGold);
 	torus2.setGlobalAmbient({ 0.7f, 0.7f ,0.7f ,1.0f });
-	LightSource light2{
-		{0,0,0,1}
-		,{1,1,1,1}
-		,{1,1,1,1}
-		,{-3,0,10}
-	};
-	torus.setLight(light2);
+	
+	torus.setLight(pointLight);
 
 	cube.position().set(0, -2, 0);
 	sphere.position().set(0, 2, 0);
 	torus.position().set(0, 0, -2);
 	torus1.position().set(3, 0, -2);
 	torus2.position().set(-3, 0, -2);
+
 	
 	//pyr.renderingProgramID() = renderingProgram;
-	//scene.addModel(&cube);
+	scene.addModel(&cube);
 	//scene.addModel(&sphere);
 	scene.addModel(&torus);
 	scene.addModel(&torus1);
@@ -194,6 +193,8 @@ int main()
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (!grapMouse)
+		return;
 	if (firstMouse)
 	{
 		lastX = (float)xpos;
@@ -216,23 +217,104 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.processMouseScroll((float)yoffset);
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	static double xpos, ypos;
+	switch (button)
+	{
+	case GLFW_MOUSE_BUTTON_LEFT: {
+		if (action == GLFW_PRESS) {
+			mouseLeftBtnPressed = true;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			F7::Vec3 v3Coord(xpos, ypos, 0.5);
+			cout << "Cursor Pressed Position at " << v3Coord << endl;
+
+			camera.getNDCCoord(v3Coord);
+			cout << "NDC  Coordinate: " << v3Coord << endl;
+
+			
+			F7::Vec4 v4TestPoint(0, -8, 0, 1);
+			cout << camera.getViewMatrix() * v4TestPoint << endl;
+			cout << camera.getProjMatrix() * camera.getViewMatrix() * v4TestPoint << endl;
+			v4TestPoint = camera.getProjMatrix() * camera.getViewMatrix() * v4TestPoint;
+			F7::Vec3 v3TestCoord = v4TestPoint.xyz()/ v4TestPoint.w();
+			camera.getScreenCoordFromNDC(v3TestCoord);
+			cout << v3TestCoord << endl;
+
+			F7::Vec4 v4TemCoord(v3Coord, 1);
+			F7::Mat4 matInvProj = camera.getProjInverseMatrix();
+			v4TemCoord = (matInvProj * v4TemCoord);
+			v4TemCoord /= v4TemCoord.w();
+			cout << "View Coordinate: " << v4TemCoord << endl;
+
+			F7::Mat4 matInvView = camera.getViewInverseMatrix();
+			//v3Coord = (matInvView * F7::Vec4(v3Coord, 1)).xyz();
+			//cout << "View Coordinate: " << v3Coord << endl;
+			cout << endl;
+		}
+		else if (action == GLFW_RELEASE) {
+			mouseLeftBtnPressed = false;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			cout << "Cursor Released Position at (" << xpos << " : " << ypos << endl;
+
+		}
+		else {
+			cout << "-" << endl;
+		}	
+	}
+		break;
+	case GLFW_MOUSE_BUTTON_RIGHT: {
+		if (action == GLFW_PRESS) {
+			mouseRightBtnPressed = true;
+		}
+		else if (action == GLFW_RELEASE) {
+			mouseRightBtnPressed = false;
+		}
+		else {
+			cout << "-" << endl;
+		}
+	}
+		break;
+	default:
+		break;
+	}
+}
+
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-
+		
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::FORWARD, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::FORWARD, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::BACKWARD, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::BACKWARD, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::LEFT, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::LEFT, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::RIGHT, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::RIGHT, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::DOWN, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::UP, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.processKeyboard(Camera_Movement::UP, deltaTime);
+	{
+		if (mouseRightBtnPressed)
+			camera.processKeyboard(Camera_Movement::DOWN, deltaTime);
+	}
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
 		camera.addMouseMoveSpeed(0.1);
 	if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)
@@ -263,12 +345,14 @@ void processInput(GLFWwindow* window)
 		if (tag) {
 			firstMouse = true;
 			tag = false;
+			grapMouse = false;
 		}
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 	else {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		tag = true;
+		grapMouse = true;
 	}
 		
 }
@@ -277,4 +361,6 @@ void windowReshapeCallback(GLFWwindow* window, int newWidth, int newHeight)
 {
 	glViewport(0, 0, newWidth, newHeight);
 	camera._aspect = (float)newWidth / (float)newHeight;
+	camera._width = newWidth;
+	camera._height = newHeight;
 }
